@@ -7,8 +7,19 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @all_ratings = []
+    Movie.all_ratings.each do |rating|
+      checked = false;
+      unless params[:ratings].nil?
+        checked = params[:ratings].include?(rating)
+      end
+      @all_ratings << [rating, checked]
+    end
     @sort_by = params[:sort]
-    @movies = Movie.find(:all, :order => @sort_by)
+    @movies = Movie.order(@sort_by)
+    unless params[:ratings].nil?
+      @movies = @movies.where(:rating => params[:ratings].keys)
+    end
   end
 
   def new
@@ -31,6 +42,7 @@ class MoviesController < ApplicationController
     flash[:notice] = "#{@movie.title} was successfully updated."
     redirect_to movie_path(@movie)
   end
+
 
   def destroy
     @movie = Movie.find(params[:id])
