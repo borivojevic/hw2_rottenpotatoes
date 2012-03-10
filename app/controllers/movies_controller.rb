@@ -7,6 +7,27 @@ class MoviesController < ApplicationController
   end
 
   def index
+    # preserve sort and rating filter options
+    if params.has_key?(:ratings)
+      session[:ratings] = params[:ratings]
+    end
+
+    if params.has_key?(:sort)
+      session[:sort] = params[:sort]
+    end
+
+    if !params.has_key?(:ratings) && !params.has_key?(:sort)
+      p = Hash.new
+      if session.has_key?(:ratings)
+        p[:ratings] = session[:ratings]
+      end
+      if !session.has_key?(:sort)
+        p[:sort] = session[:sort]
+      end
+      if !p.empty?
+        redirect_to movies_path(p)
+      end
+    end
     @all_ratings = []
     Movie.all_ratings.each do |rating|
       checked = false;
